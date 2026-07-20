@@ -337,14 +337,14 @@
 
     // ========== SCREEN MANAGEMENT ==========
     function hideAll() {
-        document.getElementById('onboarding').style.display = 'none';
+        document.getElementById('onboarding').classList.remove('active');
         document.getElementById('landing').style.display = 'none';
         document.getElementById('main-app').classList.add('hidden');
     }
 
     window.showOnboarding = function() {
         hideAll();
-        document.getElementById('onboarding').style.display = 'flex';
+        document.getElementById('onboarding').classList.add('active');
     };
 
     window.showLanding = function() {

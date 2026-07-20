@@ -65,9 +65,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     min-height: 100vh;
     background: var(--bg);
     padding: 40px 20px;
-    display: flex;
+    display: none;
     align-items: flex-start;
     justify-content: center;
+}
+
+.onboarding.active {
+    display: flex;
 }
 
 .onboarding-content {
