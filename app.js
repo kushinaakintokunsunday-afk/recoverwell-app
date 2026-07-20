@@ -986,7 +986,8 @@
                 state.exercises.forEach(e => e.completed = false);
                 saveState();
             }
-            showMainApp();
+            showLanding();
+            document.getElementById('continue-btn').style.display = 'block';
         }
 
         document.getElementById('photo-input').addEventListener('change', handlePhotoUpload);

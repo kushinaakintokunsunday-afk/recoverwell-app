@@ -12,7 +12,7 @@
     <div id="app" role="application" aria-label="RecoverWell Recovery Tracker">
 
         <!-- ONBOARDING SCREEN -->
-        <section id="onboarding" class="onboarding" role="dialog" aria-label="Setup your recovery">
+        <section id="onboarding" class="onboarding" role="dialog" aria-label="Setup your recovery" style="display:none;">
             <div class="onboarding-content">
                 <div class="onboarding-icon">💚</div>
                 <h1>Welcome to RecoverWell</h1>
@@ -100,6 +100,7 @@
 
                 <div class="hero-cta">
                     <button class="btn-hero" onclick="showOnboarding()" aria-label="Start tracking your recovery for free">Start Tracking Free</button>
+                    <button class="btn-hero secondary" id="continue-btn" style="display:none; margin-top:10px;" onclick="showMainApp()" aria-label="Continue to your recovery dashboard">Continue Your Recovery</button>
                     <p class="cta-note">No account needed. Works in your browser.</p>
                 </div>
 
