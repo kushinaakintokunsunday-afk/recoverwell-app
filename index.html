@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecoverWell - Recovery Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Splash Screen -->
+        <div id="splash" class="splash">
+            <div class="splash-content">
+                <div class="splash-icon">💚</div>
+                <h1>RecoverWell</h1>
+                <p>Your Recovery Companion</p>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="main-app hidden">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1>RecoverWell</h1>
+                        <p class="greeting">Good morning, <span id="user-name">Patient</span></p>
+                    </div>
+                    <div class="header-right">
+                        <div class="avatar">👤</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Navigation -->
+            <nav class="nav-tabs">
+                <button class="tab active" data-tab="dashboard">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-text">Home</span>
+                </button>
+                <button class="tab" data-tab="exercises">
+                    <span class="tab-icon">🏋️</span>
+                    <span class="tab-text">Exercises</span>
+                </button>
+                <button class="tab" data-tab="log">
+                    <span class="tab-icon">📝</span>
+                    <span class="tab-text">Log</span>
+                </button>
+                <button class="tab" data-tab="photos">
+                    <span class="tab-icon">📸</span>
+                    <span class="tab-text">Photos</span>
+                </button>
+            </nav>
+
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <!-- Recovery Progress Card -->
+                <div class="card progress-card">
+                    <div class="card-header">
+                        <h2>Recovery Progress</h2>
+                        <span class="badge">Day 12</span>
+                    </div>
+                    <div class="progress-ring-container">
+                        <svg class="progress-ring" viewBox="0 0 120 120">
+                            <circle class="progress-ring-bg" cx="60" cy="60" r="54"></circle>
+                            <circle class="progress-ring-fill" cx="60" cy="60" r="54"></circle>
+                        </svg>
+                        <div class="progress-text">
+                            <span class="progress-percent">35%</span>
+                            <span class="progress-label">Complete</span>
+                        </div>
+                    </div>
+                    <div class="progress-details">
+                        <div class="detail">
+                            <span class="detail-value">12</span>
+                            <span class="detail-label">Days Elapsed</span>
+                        </div>
+                        <div class="detail">
+                            <span class="detail-value">78</span>
+                            <span class="detail-label">Days Left</span>
+                        </div>
+                        <div class="detail">
+                            <span class="detail-value">90</span>
+                            <span class="detail-label">Total Days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon pain-icon">🔥</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="pain-avg">4.2</span>
+                            <span class="stat-label">Avg Pain</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon exercise-icon">✅</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="exercises-done">28</span>
+                            <span class="stat-label">Exercises</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon streak-icon">🔥</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="streak">5</span>
+                            <span class="stat-label">Day Streak</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Focus -->
+                <div class="card focus-card">
+                    <div class="card-header">
+                        <h3>Today's Focus</h3>
+                    </div>
+                    <div class="focus-content">
+                        <div class="focus-item">
+                            <span class="focus-icon">🎯</span>
+                            <div class="focus-info">
+                                <span class="focus-title">Complete 4 exercises</span>
+                                <span class="focus-subtitle">0/4 done</span>
+                            </div>
+                            <span class="focus-arrow">→</span>
+                        </div>
+                        <div class="focus-item">
+                            <span class="focus-icon">📝</span>
+                            <div class="focus-info">
+                                <span class="focus-title">Log your pain level</span>
+                                <span class="focus-subtitle">Not logged yet</span>
+                            </div>
+                            <span class="focus-arrow">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Milestone -->
+                <div class="card milestone-card">
+                    <div class="milestone-icon">🏆</div>
+                    <div class="milestone-info">
+                        <h4>Next Milestone</h4>
+                        <p>Walk 10 minutes without support</p>
+                        <span class="milestone-date">Target: Day 18</span>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="action-btn primary" onclick="showTab('log')">
+                        <span class="action-icon">➕</span>
+                        Log Pain
+                    </button>
+                    <button class="action-btn secondary" onclick="showReportModal()">
+                        <span class="action-icon">📤</span>
+                        Share Report
+                    </button>
+                </div>
+            </section>
+
+            <!-- Exercises Tab -->
+            <section id="exercises" class="tab-content">
+                <div class="section-header">
+                    <h2>Today's Exercises</h2>
+                    <p class="subtitle">Complete each exercise and check it off</p>
+                </div>
+
+                <div class="exercise-progress">
+                    <div class="exercise-progress-bar">
+                        <div class="exercise-progress-fill" id="exercise-progress-fill"></div>
+                    </div>
+                    <span class="exercise-progress-text" id="exercise-progress-text">0/4 completed</span>
+                </div>
+
+                <div class="exercise-list" id="exercise-list">
+                    <!-- Exercises will be loaded dynamically -->
+                </div>
+
+                <div class="exercise-complete-card" id="exercise-complete-card" style="display: none;">
+                    <div class="complete-icon">🎉</div>
+                    <h3>All exercises complete!</h3>
+                    <p>Great job on your recovery today</p>
+                </div>
+            </section>
+
+            <!-- Log Tab -->
+            <section id="log" class="tab-content">
+                <div class="section-header">
+                    <h2>Daily Log</h2>
+                    <p class="subtitle">Track how you're feeling today</p>
+                </div>
+
+                <!-- Pain Level Card -->
+                <div class="card log-card">
+                    <div class="log-card-header">
+                        <span class="log-icon">🔥</span>
+                        <h3>Pain Level</h3>
+                    </div>
+                    <div class="pain-selector">
+                        <button class="pain-btn" data-pain="1">1</button>
+                        <button class="pain-btn" data-pain="2">2</button>
+                        <button class="pain-btn" data-pain="3">3</button>
+                        <button class="pain-btn" data-pain="4">4</button>
+                        <button class="pain-btn" data-pain="5">5</button>
+                        <button class="pain-btn" data-pain="6">6</button>
+                        <button class="pain-btn" data-pain="7">7</button>
+                        <button class="pain-btn" data-pain="8">8</button>
+                        <button class="pain-btn" data-pain="9">9</button>
+                        <button class="pain-btn" data-pain="10">10</button>
+                    </div>
+                    <div class="pain-scale-labels">
+                        <span>No pain</span>
+                        <span>Worst pain</span>
+                    </div>
+                    <p class="pain-description" id="pain-description">Select your pain level</p>
+                </div>
+
+                <!-- Sleep Quality Card -->
+                <div class="card log-card">
+                    <div class="log-card-header">
+                        <span class="log-icon">😴</span>
+                        <h3>Sleep Quality</h3>
+                    </div>
+                    <div class="rating-group">
+                        <button class="rating-btn" data-rating="poor">
+                            <span class="rating-emoji">😫</span>
+                            <span class="rating-text">Poor</span>
+                        </button>
+                        <button class="rating-btn" data-rating="fair">
+                            <span class="rating-emoji">😐</span>
+                            <span class="rating-text">Fair</span>
+                        </button>
+                        <button class="rating-btn" data-rating="good">
+                            <span class="rating-emoji">😊</span>
+                            <span class="rating-text">Good</span>
+                        </button>
+                        <button class="rating-btn" data-rating="great">
+                            <span class="rating-emoji">😄</span>
+                            <span class="rating-text">Great</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Notes Card -->
+                <div class="card log-card">
+                    <div class="log-card-header">
+                        <span class="log-icon">📝</span>
+                        <h3>Notes</h3>
+                    </div>
+                    <textarea id="log-notes" placeholder="How are you feeling today? Any concerns?"></textarea>
+                </div>
+
+                <button class="btn-primary" id="save-log">
+                    <span class="btn-icon">💾</span>
+                    Save Today's Log
+                </button>
+
+                <!-- Recent Logs -->
+                <div class="recent-logs">
+                    <h3>Recent Logs</h3>
+                    <div id="log-history">
+                        <!-- Logs will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Photos Tab -->
+            <section id="photos" class="tab-content">
+                <div class="section-header">
+                    <h2>Progress Photos</h2>
+                    <p class="subtitle">Track your visual recovery progress</p>
+                </div>
+
+                <div class="photo-upload-card">
+                    <input type="file" id="photo-input" accept="image/*" hidden>
+                    <div class="upload-area" onclick="document.getElementById('photo-input').click()">
+                        <span class="upload-icon">📷</span>
+                        <span class="upload-text">Tap to add photo</span>
+                        <span class="upload-hint">Take from the same angle each time</span>
+                    </div>
+                </div>
+
+                <div class="photo-grid" id="photo-grid">
+                    <!-- Photos will be loaded dynamically -->
+                </div>
+
+                <div class="photo-empty" id="photo-empty">
+                    <span class="empty-icon">📸</span>
+                    <p>No photos yet</p>
+                    <span>Add your first progress photo above</span>
+                </div>
+            </section>
+
+            <!-- Share Report Modal -->
+            <div class="modal" id="report-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Share with Therapist</h2>
+                        <button class="close-modal" onclick="closeModal()">×</button>
+                    </div>
+                    <div class="report-preview" id="report-preview">
+                        <!-- Report content -->
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button class="btn-primary" onclick="downloadReport()">
+                            <span class="btn-icon">📥</span>
+                            Download Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
