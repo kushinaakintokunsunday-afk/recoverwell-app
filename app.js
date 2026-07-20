@@ -200,6 +200,11 @@
         setup: null,
         painLogs: [],
         exercises: [],
+        medications: [],
+        todayMedsTaken: {},
+        stepsToday: 0,
+        stepGoal: 5000,
+        stepDate: '',
         viewAllLogs: false,
         lastReportText: ''
     };
@@ -216,6 +221,11 @@
                 { id: 3, name: 'Heel Slides', description: '15 reps · 2 sets', completed: false },
                 { id: 4, name: 'Straight Leg Raises', description: '10 reps · each leg', completed: false }
             ],
+            medications: [],
+            todayMedsTaken: {},
+            stepsToday: 0,
+            stepGoal: 5000,
+            stepDate: '',
             viewAllLogs: false,
             lastReportText: ''
         };
@@ -226,6 +236,11 @@
             setup: state.setup,
             painLogs: state.painLogs,
             exercises: state.exercises,
+            medications: state.medications,
+            todayMedsTaken: state.todayMedsTaken,
+            stepsToday: state.stepsToday,
+            stepGoal: state.stepGoal,
+            stepDate: state.stepDate,
             viewAllLogs: state.viewAllLogs
         };
         safeSetItem('recoverwell_state', JSON.stringify(toSave));
@@ -236,12 +251,18 @@
         if (!raw) return getDefaultState();
         const parsed = safeParseJSON(raw);
         if (!parsed) return getDefaultState();
+        const todayKey = new Date().toISOString().split('T')[0];
         return {
             setup: parsed.setup || null,
             painLogs: Array.isArray(parsed.painLogs) ? parsed.painLogs : [],
             exercises: Array.isArray(parsed.exercises) && parsed.exercises.length > 0
                 ? parsed.exercises
                 : getDefaultState().exercises,
+            medications: Array.isArray(parsed.medications) ? parsed.medications : [],
+            todayMedsTaken: parsed.stepDate === todayKey ? (parsed.todayMedsTaken || {}) : {},
+            stepsToday: parsed.stepDate === todayKey ? (parsed.stepsToday || 0) : 0,
+            stepGoal: parsed.stepGoal || 5000,
+            stepDate: parsed.stepDate || '',
             viewAllLogs: false,
             lastReportText: ''
         };
@@ -385,6 +406,7 @@
         if (tabName === 'exercises') renderExercises();
         if (tabName === 'log') { renderLogHistory(); updateLogForm(); }
         if (tabName === 'photos') renderPhotos();
+        if (tabName === 'meds') renderMeds();
     };
 
     window.startAndGo = function(tab) {
@@ -499,7 +521,23 @@
         document.getElementById('todo-exercise-sub').textContent = `${done}/${state.exercises.length} completed`;
         document.getElementById('todo-pain').className = todayLog ? 'todo-check done' : 'todo-check';
 
+        const todayKey = new Date().toISOString().split('T')[0];
+        let totalScheduled = 0;
+        let takenCount = 0;
+        state.medications.forEach(function(med) {
+            if (med.frequency === 'asneeded') return;
+            med.times.forEach(function(time, idx) {
+                totalScheduled++;
+                if (state.todayMedsTaken[todayKey + '_' + med.id + '_' + idx]) takenCount++;
+            });
+        });
+        document.getElementById('todo-meds').className = totalScheduled > 0 && takenCount === totalScheduled ? 'todo-check done' : 'todo-check';
+        document.getElementById('todo-meds-sub').textContent = totalScheduled > 0
+            ? takenCount + '/' + totalScheduled + ' taken'
+            : 'No meds scheduled';
+
         updateProgressRing(pct);
+        updateStepsRing();
     }
 
     function updateProgressRing(pct) {
@@ -780,6 +818,250 @@
         showToast('Photo deleted');
     };
 
+    // ========== MEDICATIONS ==========
+    window.showAddMed = function() {
+        document.getElementById('add-med-form').classList.remove('hidden');
+        document.getElementById('med-name').focus();
+    };
+
+    window.hideAddMed = function() {
+        document.getElementById('add-med-form').classList.add('hidden');
+        document.getElementById('med-name').value = '';
+        document.getElementById('med-dosage').value = '';
+        document.getElementById('med-freq').value = 'once';
+        document.getElementById('med-times-inputs').innerHTML = '<input type="time" class="med-time-input" value="08:00">';
+    };
+
+    document.getElementById('med-freq').addEventListener('change', function() {
+        const count = { once: 1, twice: 2, three: 3, four: 4, asneeded: 1 }[this.value] || 1;
+        const container = document.getElementById('med-times-inputs');
+        const defaults = ['08:00', '12:00', '18:00', '22:00'];
+        container.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            const inp = document.createElement('input');
+            inp.type = 'time';
+            inp.className = 'med-time-input';
+            inp.value = defaults[i] || '12:00';
+            container.appendChild(inp);
+        }
+    });
+
+    window.addMed = function() {
+        const name = document.getElementById('med-name').value.trim();
+        const dosage = document.getElementById('med-dosage').value.trim();
+        const freq = document.getElementById('med-freq').value;
+        const times = Array.from(document.querySelectorAll('#med-times-inputs .med-time-input')).map(i => i.value);
+
+        if (!name) { showToast('Enter a medication name'); return; }
+
+        const maxId = state.medications.reduce((max, m) => Math.max(max, m.id), 0);
+        state.medications.push({
+            id: maxId + 1,
+            name: name,
+            dosage: dosage || '',
+            frequency: freq,
+            times: times
+        });
+        saveState();
+        hideAddMed();
+        renderMeds();
+        showToast('Medication added');
+    };
+
+    window.deleteMed = function(id) {
+        state.medications = state.medications.filter(m => m.id !== id);
+        const todayKey = new Date().toISOString().split('T')[0];
+        delete state.todayMedsTaken[todayKey + '_' + id];
+        saveState();
+        renderMeds();
+    };
+
+    window.toggleMedTaken = function(medId, timeIdx) {
+        const todayKey = new Date().toISOString().split('T')[0];
+        const key = todayKey + '_' + medId + '_' + timeIdx;
+        if (state.todayMedsTaken[key]) {
+            delete state.todayMedsTaken[key];
+        } else {
+            state.todayMedsTaken[key] = true;
+        }
+        saveState();
+        renderMeds();
+    };
+
+    function renderMeds() {
+        const todayKey = new Date().toISOString().split('T')[0];
+        const todayList = document.getElementById('meds-today-list');
+        const todayEmpty = document.getElementById('meds-today-empty');
+        const allList = document.getElementById('meds-all-list');
+
+        if (state.medications.length === 0) {
+            todayEmpty.style.display = 'block';
+            todayList.innerHTML = '';
+            allList.innerHTML = '<p class="empty-small">No medications added yet</p>';
+            return;
+        }
+
+        todayEmpty.style.display = 'none';
+
+        let todayHtml = '';
+        state.medications.forEach(med => {
+            if (med.frequency === 'asneeded') return;
+            med.times.forEach(function(time, idx) {
+                const key = todayKey + '_' + med.id + '_' + idx;
+                const taken = !!state.todayMedsTaken[key];
+                const h = time.split(':')[0];
+                const m = time.split(':')[1];
+                const ampm = parseInt(h) >= 12 ? 'PM' : 'AM';
+                const h12 = parseInt(h) > 12 ? parseInt(h) - 12 : (parseInt(h) === 0 ? 12 : parseInt(h));
+                const timeLabel = h12 + ':' + m + ' ' + ampm;
+
+                todayHtml += `
+                    <div class="med-item" role="listitem">
+                        <div class="med-icon" aria-hidden="true">💊</div>
+                        <div class="med-info">
+                            <span class="med-name">${escapeHtml(med.name)}</span>
+                            <span class="med-dosage">${escapeHtml(med.dosage || 'No dosage set')}</span>
+                        </div>
+                        <span class="med-time-badge">${timeLabel}</span>
+                        <button class="med-taken-btn ${taken ? 'taken' : ''}" onclick="toggleMedTaken(${med.id},${idx})" aria-label="${taken ? 'Mark as not taken' : 'Mark as taken'} ${escapeHtml(med.name)} at ${timeLabel}"></button>
+                    </div>
+                `;
+            });
+        });
+
+        if (!todayHtml) {
+            todayHtml = '<p class="empty-small">Only "as needed" meds — no scheduled doses</p>';
+        }
+        todayList.innerHTML = todayHtml;
+
+        let allHtml = '';
+        state.medications.forEach(med => {
+            const freqLabel = { once: 'Once daily', twice: 'Twice daily', three: '3x daily', four: '4x daily', asneeded: 'As needed' }[med.frequency] || med.frequency;
+            allHtml += `
+                <div class="med-item" role="listitem">
+                    <div class="med-icon" aria-hidden="true">💊</div>
+                    <div class="med-info">
+                        <span class="med-name">${escapeHtml(med.name)}</span>
+                        <span class="med-dosage">${escapeHtml(med.dosage || 'No dosage')} · ${freqLabel}</span>
+                    </div>
+                    <button class="med-delete-btn" onclick="deleteMed(${med.id})" aria-label="Delete ${escapeHtml(med.name)}">🗑️</button>
+                </div>
+            `;
+        });
+        allList.innerHTML = allHtml;
+    }
+
+    // ========== STEPS / ACTIVITY ==========
+    function updateStepsRing() {
+        const pct = Math.min(100, (state.stepsToday / state.stepGoal) * 100);
+        const circ = 2 * Math.PI * 34;
+        const offset = circ - (pct / 100) * circ;
+        const ring = document.getElementById('steps-ring');
+        if (ring) {
+            ring.style.strokeDasharray = circ;
+            ring.style.strokeDashoffset = offset;
+        }
+        document.getElementById('steps-count').textContent = state.stepsToday.toLocaleString();
+        document.getElementById('steps-goal').textContent = state.stepGoal.toLocaleString();
+        const km = (state.stepsToday * 0.000762).toFixed(1);
+        document.getElementById('steps-distance').textContent = km + ' km';
+    }
+
+    window.addManualSteps = function() {
+        const input = document.getElementById('manual-steps');
+        const val = parseInt(input.value);
+        if (!val || val < 0) { showToast('Enter a valid number'); return; }
+
+        const todayKey = new Date().toISOString().split('T')[0];
+        if (state.stepDate !== todayKey) {
+            state.stepsToday = 0;
+            state.stepDate = todayKey;
+        }
+        state.stepsToday += val;
+        input.value = '';
+        saveState();
+        updateStepsRing();
+        showToast('+' + val.toLocaleString() + ' steps added');
+    };
+
+    window.connectHealth = function() {
+        showToast('Health app integration coming soon! Use manual entry for now.');
+    };
+
+    // ========== FAMILY SHARE ==========
+    window.showFamilyShare = function() {
+        const modal = document.getElementById('family-modal');
+        modal.classList.add('active');
+
+        const shareData = {
+            name: state.setup ? state.setup.name : 'Patient',
+            surgery: state.setup ? state.setup.surgery : '',
+            startDate: state.setup ? state.setup.startDate : '',
+            totalDays: state.setup ? state.setup.totalDays : 0,
+            painLogs: state.painLogs.slice(0, 30),
+            exercises: state.exercises.map(e => ({ name: e.name, completed: e.completed })),
+            exportDate: new Date().toISOString(),
+            readOnly: true
+        };
+
+        const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = baseUrl + '?share=' + encoded;
+
+        document.getElementById('family-link').value = shareUrl;
+
+        const qrContainer = document.getElementById('family-qr');
+        qrContainer.innerHTML = '';
+        if (shareUrl.length < 2000) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 160;
+            canvas.height = 160;
+            qrContainer.appendChild(canvas);
+            generateSimpleQR(canvas, shareUrl);
+        }
+    };
+
+    window.closeFamilyShare = function() {
+        document.getElementById('family-modal').classList.remove('active');
+    };
+
+    window.copyFamilyLink = function() {
+        const input = document.getElementById('family-link');
+        navigator.clipboard.writeText(input.value).then(function() {
+            showToast('Link copied to clipboard!');
+        }).catch(function() {
+            input.select();
+            document.execCommand('copy');
+            showToast('Link copied!');
+        });
+    };
+
+    function generateSimpleQR(canvas, text) {
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, size, size);
+        ctx.fillStyle = '#000000';
+
+        const len = text.length;
+        const modules = Math.min(41, Math.max(21, Math.ceil(Math.sqrt(len * 2))));
+        const cellSize = size / modules;
+
+        for (let i = 0; i < modules; i++) {
+            for (let j = 0; j < modules; j++) {
+                let filled = false;
+                if (i < 7 && j < 7) filled = (i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4));
+                else if (i < 7 && j >= modules - 7) { const jj = j - (modules - 7); filled = (jj === 0 || jj === 6 || i === 0 || i === 6 || (i >= 2 && i <= 4 && jj >= 2 && jj <= 4)); }
+                else if (i >= modules - 7 && j < 7) { const ii = i - (modules - 7); filled = (ii === 0 || ii === 6 || j === 0 || j === 6 || (ii >= 2 && ii <= 4 && j >= 2 && j <= 4)); }
+                else {
+                    const seed = (i * modules + j + len) % 7;
+                    filled = seed < 3;
+                }
+                if (filled) ctx.fillRect(Math.floor(j * cellSize), Math.floor(i * cellSize), Math.ceil(cellSize), Math.ceil(cellSize));
+            }
+        }
+    }
+
     // ========== REPORT & SHARING ==========
     function generateReportText() {
         if (!state.setup) return '';
@@ -998,6 +1280,8 @@
                     closeShareOptions();
                 } else if (document.getElementById('report-modal').classList.contains('active')) {
                     closeModal();
+                } else if (document.getElementById('family-modal').classList.contains('active')) {
+                    closeFamilyShare();
                 } else if (!document.getElementById('settings-panel').classList.contains('hidden')) {
                     document.getElementById('settings-panel').classList.add('hidden');
                 }

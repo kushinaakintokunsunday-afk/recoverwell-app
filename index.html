@@ -149,6 +149,30 @@
                         </div>
                         <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('meds')" onkeydown="if(event.key==='Enter')startAndGo('meds')">
+                        <span class="feature-icon" aria-hidden="true">💊</span>
+                        <div>
+                            <strong>Medication Reminders</strong>
+                            <p>Track doses and get reminders so you never miss a pill</p>
+                        </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
+                    </div>
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('dashboard')" onkeydown="if(event.key==='Enter')startAndGo('dashboard')">
+                        <span class="feature-icon" aria-hidden="true">🚶</span>
+                        <div>
+                            <strong>Activity & Steps</strong>
+                            <p>Log steps manually or connect Apple Health / Google Fit</p>
+                        </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
+                    </div>
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('dashboard')" onkeydown="if(event.key==='Enter')startAndGo('dashboard')">
+                        <span class="feature-icon" aria-hidden="true">👨‍👩‍👧</span>
+                        <div>
+                            <strong>Family Share</strong>
+                            <p>Share a read-only link so loved ones can follow your recovery</p>
+                        </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
+                    </div>
                 </div>
 
                 <div class="hero-cta">
@@ -182,17 +206,44 @@
             <!-- Settings Panel -->
             <div id="settings-panel" class="settings-panel hidden" role="region" aria-label="Settings">
                 <div class="settings-item">
-                    <span>Export Data</span>
+                    <span>📤 Share with Family</span>
+                    <button class="btn-small outline" onclick="showFamilyShare()" aria-label="Generate a share link for family members">Share</button>
+                </div>
+                <div class="settings-item">
+                    <span>💾 Export Data</span>
                     <button class="btn-small outline" onclick="exportData()" aria-label="Export all your data as JSON file">Export</button>
                 </div>
                 <div class="settings-item">
-                    <span>Import Data</span>
+                    <span>📥 Import Data</span>
                     <input type="file" id="import-input" accept=".json" hidden>
                     <button class="btn-small outline" onclick="document.getElementById('import-input').click()" aria-label="Import data from JSON file">Import</button>
                 </div>
                 <div class="settings-item">
-                    <span>Reset All Data</span>
+                    <span>🗑️ Reset All Data</span>
                     <button class="btn-small danger" onclick="resetAllData()" aria-label="Delete all data and start over">Reset</button>
+                </div>
+            </div>
+
+            <!-- Family Share Modal -->
+            <div class="modal-overlay" id="family-modal" role="dialog" aria-modal="true" aria-label="Family share">
+                <div class="modal-sheet">
+                    <div class="modal-handle" aria-hidden="true"></div>
+                    <div class="modal-head">
+                        <h2>Share with Family</h2>
+                        <button class="modal-close" onclick="closeFamilyShare()" aria-label="Close">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="family-desc">Share a read-only link so family members can view your recovery progress. They'll see your dashboard, pain logs, exercises, and photos — but cannot edit anything.</p>
+                        <div class="family-link-box">
+                            <input type="text" id="family-link" readonly class="family-link-input" aria-label="Share link">
+                            <button class="btn-small green" onclick="copyFamilyLink()" aria-label="Copy link">Copy</button>
+                        </div>
+                        <div class="family-qr" id="family-qr"></div>
+                        <p class="family-note">Link is generated from your local data. No account needed for viewers.</p>
+                    </div>
+                    <div class="modal-foot">
+                        <button class="btn-full green" onclick="closeFamilyShare()">Done</button>
+                    </div>
                 </div>
             </div>
 
@@ -209,6 +260,10 @@
                 <button class="tab" role="tab" aria-selected="false" aria-controls="log" data-tab="log">
                     <span class="tab-icon" aria-hidden="true">📝</span>
                     <span class="tab-text">Log</span>
+                </button>
+                <button class="tab" role="tab" aria-selected="false" aria-controls="meds" data-tab="meds">
+                    <span class="tab-icon" aria-hidden="true">💊</span>
+                    <span class="tab-text">Meds</span>
                 </button>
                 <button class="tab" role="tab" aria-selected="false" aria-controls="photos" data-tab="photos">
                     <span class="tab-icon" aria-hidden="true">📸</span>
@@ -257,6 +312,48 @@
                     </div>
                 </div>
 
+                <!-- Steps / Activity Card -->
+                <div class="card activity-card">
+                    <div class="card-title-row">
+                        <span class="card-title-icon" aria-hidden="true">🚶</span>
+                        <h3>Today's Activity</h3>
+                    </div>
+                    <div class="activity-visual">
+                        <div class="activity-ring-container">
+                            <svg class="activity-ring" viewBox="0 0 80 80" role="img" aria-label="Steps progress ring">
+                                <circle class="activity-ring-bg" cx="40" cy="40" r="34"></circle>
+                                <circle class="activity-ring-fill" id="steps-ring" cx="40" cy="40" r="34"></circle>
+                            </svg>
+                            <div class="activity-ring-text">
+                                <span class="activity-value" id="steps-count">0</span>
+                                <span class="activity-label">steps</span>
+                            </div>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-row">
+                                <span class="activity-meta-label">Goal</span>
+                                <span class="activity-meta-value" id="steps-goal">5,000</span>
+                            </div>
+                            <div class="activity-row">
+                                <span class="activity-meta-label">Distance</span>
+                                <span class="activity-meta-value" id="steps-distance">0 km</span>
+                            </div>
+                            <div class="activity-row">
+                                <span class="activity-meta-label">Source</span>
+                                <span class="activity-meta-value" id="steps-source">Manual</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-actions">
+                        <div class="steps-input-wrap">
+                            <label for="manual-steps" class="sr-only">Add steps</label>
+                            <input type="number" id="manual-steps" placeholder="Add steps..." min="0" max="100000" class="steps-input">
+                            <button class="btn-small green" onclick="addManualSteps()" aria-label="Add steps">Add</button>
+                        </div>
+                        <button class="btn-small outline" onclick="connectHealth()" id="health-connect-btn" aria-label="Connect to Apple Health or Google Fit">🔗 Connect Health App</button>
+                    </div>
+                </div>
+
                 <div class="card">
                     <h3 class="card-title">What to Do Today</h3>
                     <div class="todo-list" role="list">
@@ -273,6 +370,14 @@
                             <div class="todo-info">
                                 <span class="todo-text">Log your pain level</span>
                                 <span class="todo-sub">Takes 10 seconds</span>
+                            </div>
+                            <span class="todo-arrow" aria-hidden="true">→</span>
+                        </div>
+                        <div class="todo-item" role="listitem" tabindex="0" onclick="showTab('meds')" onkeydown="if(event.key==='Enter')showTab('meds')">
+                            <div class="todo-check" id="todo-meds" aria-hidden="true"></div>
+                            <div class="todo-info">
+                                <span class="todo-text">Take your medications</span>
+                                <span class="todo-sub" id="todo-meds-sub">No meds scheduled</span>
                             </div>
                             <span class="todo-arrow" aria-hidden="true">→</span>
                         </div>
@@ -441,6 +546,61 @@
                     <span class="empty-icon" aria-hidden="true">📸</span>
                     <h3>No Photos Yet</h3>
                     <p>Your first progress photo goes here. Take one now!</p>
+                </div>
+            </section>
+
+            <!-- Medications Tab -->
+            <section id="meds" class="tab-content" role="tabpanel" aria-label="Medications">
+                <div class="section-top">
+                    <h2>Medications</h2>
+                    <p>Track your meds and never miss a dose</p>
+                </div>
+
+                <div class="meds-today-card" id="meds-today-card">
+                    <h3>Today's Meds</h3>
+                    <div id="meds-today-list" role="list" aria-label="Today's medication schedule"></div>
+                    <div id="meds-today-empty" class="empty-small">
+                        <p>No medications added yet</p>
+                    </div>
+                </div>
+
+                <button class="btn-full green" onclick="showAddMed()" id="add-med-btn">+ Add Medication</button>
+
+                <!-- Add Medication Form -->
+                <div id="add-med-form" class="card hidden" style="margin-top:12px;">
+                    <div class="form-field">
+                        <label for="med-name">Medication Name</label>
+                        <input type="text" id="med-name" placeholder="e.g. Ibuprofen" maxlength="60">
+                    </div>
+                    <div class="form-field">
+                        <label for="med-dosage">Dosage</label>
+                        <input type="text" id="med-dosage" placeholder="e.g. 400mg" maxlength="30">
+                    </div>
+                    <div class="form-field">
+                        <label for="med-freq">How Often?</label>
+                        <select id="med-freq" class="form-select">
+                            <option value="once">Once a day</option>
+                            <option value="twice">Twice a day</option>
+                            <option value="three">Three times a day</option>
+                            <option value="four">Four times a day</option>
+                            <option value="asneeded">As needed</option>
+                        </select>
+                    </div>
+                    <div class="form-field" id="med-times-field">
+                        <label>Reminder Times</label>
+                        <div id="med-times-inputs">
+                            <input type="time" class="med-time-input" value="08:00">
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn-full outline" onclick="hideAddMed()">Cancel</button>
+                        <button class="btn-full green" onclick="addMed()">Add</button>
+                    </div>
+                </div>
+
+                <div class="meds-all-card" id="meds-all-card">
+                    <h3>All Medications</h3>
+                    <div id="meds-all-list" role="list" aria-label="All medications"></div>
                 </div>
             </section>
 
