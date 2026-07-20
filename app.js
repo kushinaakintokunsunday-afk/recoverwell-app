@@ -356,7 +356,16 @@
         hideAll();
         document.getElementById('main-app').classList.remove('hidden');
         updateDashboard();
+        if (window._pendingTab) {
+            showTab(window._pendingTab);
+            if (window._pendingTab === 'share') openShareOptions();
+            window._pendingTab = null;
+        }
     }
+
+    window.skipOnboarding = function() {
+        showMainApp();
+    };
 
     window.showTab = function(tabName) {
         document.querySelectorAll('.tab').forEach(t => {
@@ -376,6 +385,25 @@
         if (tabName === 'exercises') renderExercises();
         if (tabName === 'log') { renderLogHistory(); updateLogForm(); }
         if (tabName === 'photos') renderPhotos();
+    };
+
+    window.startAndGo = function(tab) {
+        if (!state.setup) {
+            showOnboarding();
+            window._pendingTab = tab;
+        } else {
+            showMainApp();
+            showTab(tab);
+        }
+    };
+
+    window.openShareFromLanding = function() {
+        if (!state.setup) {
+            showOnboarding();
+            window._pendingTab = 'share';
+        } else {
+            openShareOptions();
+        }
     };
 
     // ========== ONBOARDING ==========
@@ -424,6 +452,11 @@
 
             saveState();
             showMainApp();
+            if (window._pendingTab) {
+                showTab(window._pendingTab);
+                if (window._pendingTab === 'share') openShareOptions();
+                window._pendingTab = null;
+            }
         });
     }
 

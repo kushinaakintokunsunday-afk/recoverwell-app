@@ -56,7 +56,7 @@
                     </div>
 
                     <button type="submit" class="btn-full green">Start My Recovery</button>
-                    <button type="button" class="btn-full outline" onclick="showMainApp()" style="margin-top:10px;">Skip for Now</button>
+                    <button type="button" class="btn-full outline" onclick="skipOnboarding()" style="margin-top:10px;">Skip for Now</button>
                 </form>
             </div>
         </section>
@@ -69,75 +69,85 @@
                 <p class="hero-subtitle">RecoverWell helps you track your post-surgery recovery — pain levels, exercises, progress photos, and milestones — all in one place.</p>
 
                 <div class="hero-features" role="list">
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('log')" onkeydown="if(event.key==='Enter')startAndGo('log')">
                         <span class="feature-icon" aria-hidden="true">🔥</span>
                         <div>
                             <strong>Pain Tracking</strong>
                             <p>Log pain from 0-10 with color-coded history and trends</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('exercises')" onkeydown="if(event.key==='Enter')startAndGo('exercises')">
                         <span class="feature-icon" aria-hidden="true">🏋️</span>
                         <div>
                             <strong>Exercise Checklist</strong>
                             <p>Custom exercises with reps, sets, and daily completion tracking</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('log')" onkeydown="if(event.key==='Enter')startAndGo('log')">
                         <span class="feature-icon" aria-hidden="true">😴</span>
                         <div>
                             <strong>Sleep Quality</strong>
                             <p>Track how you slept each night alongside your pain levels</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('photos')" onkeydown="if(event.key==='Enter')startAndGo('photos')">
                         <span class="feature-icon" aria-hidden="true">📸</span>
                         <div>
                             <strong>Progress Photos</strong>
                             <p>Take photos to visually document your healing journey</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('dashboard')" onkeydown="if(event.key==='Enter')startAndGo('dashboard')">
                         <span class="feature-icon" aria-hidden="true">📈</span>
                         <div>
                             <strong>Recovery Dashboard</strong>
                             <p>See your progress ring, streak, and stats at a glance</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('dashboard')" onkeydown="if(event.key==='Enter')startAndGo('dashboard')">
                         <span class="feature-icon" aria-hidden="true">🏆</span>
                         <div>
                             <strong>Milestones</strong>
                             <p>Set recovery goals and track which ones you've hit</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('log')" onkeydown="if(event.key==='Enter')startAndGo('log')">
                         <span class="feature-icon" aria-hidden="true">📝</span>
                         <div>
                             <strong>Daily Notes</strong>
                             <p>Write down swelling, stiffness, mood, or what helped today</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="openShareFromLanding()" onkeydown="if(event.key==='Enter')openShareFromLanding()">
                         <span class="feature-icon" aria-hidden="true">📤</span>
                         <div>
                             <strong>Therapist Reports</strong>
                             <p>Generate a clean report to share at your next appointment</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('dashboard')" onkeydown="if(event.key==='Enter')startAndGo('dashboard')">
                         <span class="feature-icon" aria-hidden="true">💾</span>
                         <div>
                             <strong>Export & Backup</strong>
                             <p>Download your data anytime or restore from a backup</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
-                    <div class="hero-feature" role="listitem">
+                    <div class="hero-feature" role="listitem" tabindex="0" onclick="startAndGo('dashboard')" onkeydown="if(event.key==='Enter')startAndGo('dashboard')">
                         <span class="feature-icon" aria-hidden="true">🔒</span>
                         <div>
                             <strong>Private & Secure</strong>
                             <p>All data stays on your device — no accounts, no servers</p>
                         </div>
+                        <span class="feature-arrow" aria-hidden="true">→</span>
                     </div>
                 </div>
 

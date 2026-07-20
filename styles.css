@@ -186,14 +186,28 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 .hero-feature {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 14px;
-    padding: 16px 0;
+    padding: 14px 12px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background 0.15s;
+}
+
+.hero-feature:hover {
+    background: rgba(255,255,255,0.05);
 }
 
 .hero-feature:last-child {
     border-bottom: none;
+}
+
+.feature-arrow {
+    color: #475569;
+    font-size: 16px;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .feature-icon {
